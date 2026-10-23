@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ahorcado - Juego</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; background: #1a1a2e; color: #fff; padding: 20px; }
+  .hidden { display: none; }
+  input, button { padding: 10px 15px; margin: 5px; font-size: 1rem; border-radius: 5px; border: none; }
+  button { background: #e94560; color: white; cursor: pointer; }
+  .letras button { padding: 8px 12px; margin: 3px; font-weight: bold; }
+  #palabra { font-size: 2rem; letter-spacing: 8px; margin: 20px; }
+  #errores { color: #e94560; font-size: 1.5rem; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Iniciar sesión</h2>
+  <input type="text" id="usuario" placeholder="Usuario" value="jugador">
+  <input type="password" id="clave" placeholder="Contraseña" value="1234">
+  <button onclick="ingresar()">Entrar</button>
+</div>
+
+<div id="juego" class="hidden">
+  <h2>Juego del Ahorcado</h2>
+  <p>Palabra en español:</p>
+  <div id="palabra"></div>
+  <p>Errores: <span id="errores">0 / 6</span></p>
+  <div id="letras"></div>
+  <p id="mensaje"></p>
+  <button onclick="reiniciar()">Reiniciar</button>
+</div>
+
+<script>
+  const palabras = ["computadora", "programacion", "javascript", "ahorcado", "español", "desarrollo"];
+  let palabra = "";
+  let letrasAdivinadas = [];
+  let errores = 0;
+  const maxErrores = 6;
+
+  function ingresar() {
+    const u = document.getElementById("usuario").value.trim();
+    const c = document.getElementById("clave").value.trim();
+    if (u && c) {
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("juego").classList.remove("hidden");
+      iniciarJuego();
+    } else {
+      alert("Completa usuario y contraseña");
+    }
+  }
+
+  function iniciarJuego() {
+    palabra = palabras[Math.floor(Math.random() * palabras.length)];
+    letrasAdivinadas = [];
+    errores = 0;
+    mostrarPalabra();
+    mostrarLetras();
+    document.getElementById("mensaje").textContent = "";
+  }
+
+  function mostrarPalabra() {
+    let texto = "";
+    for (let letra of palabra) {
+      texto += letrasAdivinadas.includes(letra) ? letra + " " : "_ ";
+    }
+    document.getElementById("palabra").textContent = texto.trim();
+  }
+
+  function mostrarLetras() {
+    const contenedor = document.getElementById("letras");
+    contenedor.innerHTML = "";
+    const abecedario = "abcdefghijklmnopqrstuvwxyzñ";
+    for (let letra of abecedario) {
+      const btn = document.createElement("button");
+      btn.textContent = letra;
+      btn.onclick = () => elegir(letra);
+      btn.disabled = letrasAdivinadas.includes(letra);
+      contenedor.appendChild(btn);
+    }
+  }
+
+  function elegir(letra) {
+    letrasAdivinadas.push(letra);
+    if (!palabra.includes(letra)) errores++;
+    document.getElementById("errores").textContent = errores + " / " + maxErrores;
+    mostrarPalabra();
+    mostrarLetras();
+    if (palabra.split("").every(l => letrasAdivinadas.includes(l))) {
+      document.getElementById("mensaje").textContent = "¡Ganaste!";
+    } else if (errores >= maxErrores) {
+      document.getElementById("mensaje").textContent = "Perdiste. La palabra era: " + palabra;
+    }
+  }
+
+  function reiniciar() {
+    iniciarJuego();
+  }
+</script>
+</body>
+</html>
